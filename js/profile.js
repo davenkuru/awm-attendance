@@ -98,7 +98,7 @@ async function loadProfile() {
   const initials  = getInitials(name);
   const levelId   = data.user_metadata?.level_id;
   const roleName  = role === 'coordinator' ? 'Level ' + (levelId || 3) + ' Coordinator' : 'Administrator';
-  const dashHref  = role === 'coordinator' ? 'coordinator/coordinator.html' : 'admin/admin.html';
+  const dashHref  = role === 'coordinator' ? 'coordinator/' : 'admin/';
 
   // Large header card
   document.getElementById('profile-avatar').textContent = initials;

@@ -33,8 +33,8 @@ function selectRole(role) {
 // Determine redirect destination based on role in user metadata
 function getRedirectUrl(userData) {
   const role = userData?.user_metadata?.role;
-  if (role === 'coordinator') return 'coordinator/coordinator.html';
-  return 'admin/admin.html';
+  if (role === 'coordinator') return 'coordinator/';
+  return 'admin/';
 }
 
 // If already logged in, fetch user role and redirect
@@ -48,7 +48,7 @@ function getRedirectUrl(userData) {
     const data = await res.json();
     window.location.replace(getRedirectUrl(data));
   } catch {
-    window.location.replace('admin/admin.html');
+    window.location.replace('admin/');
   }
 })();
 
