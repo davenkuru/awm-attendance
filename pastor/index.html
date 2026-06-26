@@ -166,7 +166,7 @@
 
       <div class="table-card" style="padding:20px;margin-bottom:20px;">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-          <input type="text" id="new-role-input" placeholder="New role name…" style="flex:1;" />
+          <input type="text" id="new-role-input" placeholder="New role name…" style="flex:1;" onkeydown="if(event.key==='Enter')addMinistryRole()" />
           <button class="btn-primary" onclick="addMinistryRole()" style="white-space:nowrap;">+ Add Role</button>
         </div>
         <div id="roles-list">

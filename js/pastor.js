@@ -262,7 +262,7 @@ async function loadMinistryRoles() {
 async function addMinistryRole() {
   const input = document.getElementById('new-role-input');
   const name  = (input?.value || '').trim();
-  if (!name) return;
+  if (!name) { alert('Please type a role name first.'); input?.focus(); return; }
   try {
     await api('ministry_roles', {
       method:  'POST',
