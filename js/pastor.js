@@ -248,12 +248,17 @@ async function loadMinistryRoles() {
   }
   el.innerHTML = `
     <table class="data-table">
-      <thead><tr><th>Role Name</th><th>Action</th></tr></thead>
+      <thead><tr><th>Role Name</th><th style="width:160px;">Action</th></tr></thead>
       <tbody>
         ${_ministryRoles.map(r => `
-          <tr>
-            <td>${esc(r.name)}</td>
-            <td><button class="btn-sm btn-danger" onclick='deleteMinistryRole(${r.id}, "${esc(r.name)}")'>Remove</button></td>
+          <tr id="role-row-${r.id}">
+            <td id="role-name-${r.id}">${esc(r.name)}</td>
+            <td>
+              <div style="display:flex;gap:6px;">
+                <button class="btn-sm" onclick='startEditRole(${r.id}, "${esc(r.name)}")'>Edit</button>
+                <button class="btn-sm btn-danger" onclick='deleteMinistryRole(${r.id}, "${esc(r.name)}")'>Remove</button>
+              </div>
+            </td>
           </tr>`).join('')}
       </tbody>
     </table>`;
@@ -285,6 +290,55 @@ async function deleteMinistryRole(id, name) {
     await loadMinistryRoles();
   } catch (e) {
     alert('Could not remove role: ' + (e.message || 'Unknown error'));
+  }
+}
+
+function startEditRole(id, currentName) {
+  const nameCell   = document.getElementById(`role-name-${id}`);
+  const actionCell = nameCell?.nextElementSibling;
+  if (!nameCell || !actionCell) return;
+
+  nameCell.innerHTML =
+    `<input id="role-edit-input-${id}" type="text" value="${esc(currentName)}"
+      style="width:100%;padding:4px 8px;border-radius:6px;border:1px solid var(--gold);background:var(--surface-2);color:var(--text);font-size:14px;"
+      onkeydown="if(event.key==='Enter')saveEditRole(${id});if(event.key==='Escape')cancelEditRole(${id},'${esc(currentName)}')" />`;
+
+  actionCell.innerHTML =
+    `<div style="display:flex;gap:6px;">
+      <button class="btn-sm btn-primary" onclick="saveEditRole(${id})">Save</button>
+      <button class="btn-sm" onclick="cancelEditRole(${id},'${esc(currentName)}')">Cancel</button>
+    </div>`;
+
+  document.getElementById(`role-edit-input-${id}`)?.focus();
+}
+
+function cancelEditRole(id, originalName) {
+  const nameCell   = document.getElementById(`role-name-${id}`);
+  const actionCell = nameCell?.nextElementSibling;
+  if (!nameCell || !actionCell) return;
+
+  nameCell.innerHTML = esc(originalName);
+  actionCell.innerHTML =
+    `<div style="display:flex;gap:6px;">
+      <button class="btn-sm" onclick='startEditRole(${id}, "${esc(originalName)}")'>Edit</button>
+      <button class="btn-sm btn-danger" onclick='deleteMinistryRole(${id}, "${esc(originalName)}")'>Remove</button>
+    </div>`;
+}
+
+async function saveEditRole(id) {
+  const input   = document.getElementById(`role-edit-input-${id}`);
+  const newName = (input?.value || '').trim();
+  if (!newName) { alert('Role name cannot be empty.'); input?.focus(); return; }
+
+  try {
+    await api(`ministry_roles?id=eq.${id}`, {
+      method:  'PATCH',
+      headers: { 'Prefer': 'return=minimal' },
+      body:    JSON.stringify({ name: newName })
+    });
+    await loadMinistryRoles();
+  } catch (e) {
+    alert('Could not rename role: ' + (e.message || 'Unknown error'));
   }
 }
 
