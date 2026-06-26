@@ -13,6 +13,7 @@
 
 <div id="login-screen">
   <div class="login-card">
+    <button class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode" style="position:absolute;top:16px;right:16px;">🌙</button>
     <div class="logo"><img src="img/awm-color.png" alt="AWM Logo" style="width:90px;height:90px;object-fit:contain;" /></div>
     <h1 id="login-title">Sign In</h1>
     <p>Discipleship Class Management</p>
@@ -43,6 +44,7 @@
 </div>
 
 <style>
+.login-card { position: relative; }
 .role-selector {
   display: flex; gap: 10px; margin-bottom: 22px;
 }
@@ -63,6 +65,7 @@
 </style>
 
 <script src="js/config.js"></script>
+<script src="js/theme.js"></script>
 <script src="js/login.js"></script>
 </body>
 </html>
