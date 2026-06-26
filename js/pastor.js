@@ -298,31 +298,22 @@ function startEditRole(id, currentName) {
   const actionCell = nameCell?.nextElementSibling;
   if (!nameCell || !actionCell) return;
 
+  // Store original name on the row element to avoid inline string escaping issues
+  const row = document.getElementById(`role-row-${id}`);
+  if (row) row.dataset.originalName = currentName;
+
   nameCell.innerHTML =
     `<input id="role-edit-input-${id}" type="text" value="${esc(currentName)}"
       style="width:100%;padding:4px 8px;border-radius:6px;border:1px solid var(--gold);background:var(--surface-2);color:var(--text);font-size:14px;"
-      onkeydown="if(event.key==='Enter')saveEditRole(${id});if(event.key==='Escape')cancelEditRole(${id},'${esc(currentName)}')" />`;
+      onkeydown="if(event.key==='Enter')saveEditRole(${id});if(event.key==='Escape')loadMinistryRoles()" />`;
 
   actionCell.innerHTML =
     `<div style="display:flex;gap:6px;">
       <button class="btn-sm btn-primary" onclick="saveEditRole(${id})">Save</button>
-      <button class="btn-sm" onclick="cancelEditRole(${id},'${esc(currentName)}')">Cancel</button>
+      <button class="btn-sm" onclick="loadMinistryRoles()">Cancel</button>
     </div>`;
 
   document.getElementById(`role-edit-input-${id}`)?.focus();
-}
-
-function cancelEditRole(id, originalName) {
-  const nameCell   = document.getElementById(`role-name-${id}`);
-  const actionCell = nameCell?.nextElementSibling;
-  if (!nameCell || !actionCell) return;
-
-  nameCell.innerHTML = esc(originalName);
-  actionCell.innerHTML =
-    `<div style="display:flex;gap:6px;">
-      <button class="btn-sm" onclick='startEditRole(${id}, "${esc(originalName)}")'>Edit</button>
-      <button class="btn-sm btn-danger" onclick='deleteMinistryRole(${id}, "${esc(originalName)}")'>Remove</button>
-    </div>`;
 }
 
 async function saveEditRole(id) {
