@@ -320,9 +320,24 @@
 
       <div class="table-card">
         <div class="table-toolbar">
-          <span id="member-count-label" style="font-size:13px;color:var(--text-muted);">—</span>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <span id="member-count-label" style="font-size:13px;color:var(--text-muted);">—</span>
+            <!-- Date filters — shown only in graduated view -->
+            <div id="grad-date-filters" style="display:none;align-items:center;gap:8px;flex-wrap:wrap;">
+              <label style="font-size:12px;font-weight:600;color:var(--text-muted);">From</label>
+              <input type="date" id="grad-date-from" onchange="renderGraduated()" style="font-size:13px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text);" />
+              <label style="font-size:12px;font-weight:600;color:var(--text-muted);">To</label>
+              <input type="date" id="grad-date-to" onchange="renderGraduated()" style="font-size:13px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface-2);color:var(--text);" />
+              <button class="btn-sm" onclick="clearGraduatedDates()" style="font-size:12px;">Clear</button>
+            </div>
+          </div>
           <div class="search-bar">
             <input type="text" id="member-search" placeholder="Search name or family…" oninput="filterMembers()" />
+            <!-- Graduated export — shown only in graduated view -->
+            <button id="grad-export-btn" class="btn-sm btn-edit" onclick="exportGraduatedPdf()" style="display:none;align-items:center;gap:5px;">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;flex-shrink:0;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export PDF
+            </button>
             <button class="btn-sm btn-edit" onclick="openMembersPdfModal()" style="display:flex;align-items:center;gap:5px;">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;flex-shrink:0;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
               Export PDF
@@ -346,19 +361,7 @@
             </button>
           </div>
         </div>
-        <!-- Graduated date filter + export (shown in graduated view) -->
-        <div id="graduated-toolbar" style="display:none;padding:10px 0 14px;display:none;align-items:center;gap:10px;flex-wrap:wrap;">
-          <label style="font-size:12px;font-weight:600;color:var(--text-muted);">From</label>
-          <input type="date" id="grad-date-from" onchange="renderGraduated()" style="font-size:13px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);" />
-          <label style="font-size:12px;font-weight:600;color:var(--text-muted);">To</label>
-          <input type="date" id="grad-date-to" onchange="renderGraduated()" style="font-size:13px;padding:5px 8px;border:1px solid var(--border);border-radius:6px;background:var(--surface);color:var(--text);" />
-          <button class="btn-sm" onclick="clearGraduatedDates()" style="font-size:12px;">Clear dates</button>
-          <div style="flex:1;"></div>
-          <button class="btn-sm btn-edit" onclick="exportGraduatedPdf()" style="display:flex;align-items:center;gap:5px;">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px;flex-shrink:0;"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-            Export PDF
-          </button>
-        </div>
+        <div id="graduated-toolbar" style="display:none;"></div>
 
         <!-- Graduated members table (shown in graduated view) -->
         <div id="graduated-body" style="display:none;">
