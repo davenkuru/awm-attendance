@@ -1363,7 +1363,7 @@ async function doGraduate(ids, names) {
     label = ids.length === 1
       ? `Mark ${names[0]} as Completed?`
       : `Mark ${ids.length} members as Completed?`;
-    confirmMsg = label + '\n\nThey have finished all discipleship levels. You can then assign them a ministry role.';
+    confirmMsg = label + '\n\nThey have finished all discipleship levels. The Pastor will assign them a ministry role.';
   } else {
     label = ids.length === 1
       ? `Graduate ${names[0]} to Level ${nextLevel}?`
@@ -1421,48 +1421,36 @@ async function graduateMember(id, name) {
   await doGraduate([id], [name]);
 }
 
-// ── Assign Ministry Role ──────────────────────────────────────────────
-async function assignRole(id, name) {
-  const role = prompt(`Assign a ministry role to ${name}:\n(e.g. Cell Leader, Worship, Ushering, Children's Ministry)`);
-  if (!role || !role.trim()) return;
-  try {
-    await api(`people?id=eq.${id}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ discipleship_status: 'ready_for_role', ministry_role: role.trim() })
-    });
-    loadMinistryReady();
-    loadCompleted();
-  } catch(e) {
-    alert('Error assigning role: ' + (e.message || 'Unknown error'));
-  }
-}
-
-// ── Load Completed Members ────────────────────────────────────────────
+// ── Load Completed Members (read-only — role assignment is Pastor only) ──
 async function loadCompleted() {
   const container = document.getElementById('completed-body');
   if (!container) return;
   const data = await api('people?discipleship_status=in.(completed,ready_for_role)&order=full_name&select=id,full_name,family_name,phone_number,discipleship_status,ministry_role') || [];
-  if (!data.length) { container.innerHTML = '<p style="color:var(--text-muted);padding:16px;">No completed members yet.</p>'; return; }
+  if (!data.length) {
+    container.innerHTML = '<p style="color:var(--text-muted);padding:16px;">No completed members yet.</p>';
+    return;
+  }
   container.innerHTML = `
+    <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;">
+      Ministry role assignment is handled by the Pastor.
+    </p>
     <table class="data-table">
       <thead><tr>
-        <th>Name</th><th>Family</th><th>Status</th><th>Ministry Role</th><th>Actions</th>
+        <th>Name</th><th>Family</th><th>Status</th><th>Ministry Role</th>
       </tr></thead>
       <tbody>
         ${data.map(m => {
           const statusBadge = m.discipleship_status === 'ready_for_role'
-            ? '<span class="badge" style="background:rgba(201,168,76,0.2);color:#c9a84c;">Ready for Role</span>'
+            ? '<span class="badge" style="background:rgba(201,168,76,0.2);color:#c9a84c;">Role Assigned</span>'
             : '<span class="badge" style="background:rgba(76,175,125,0.15);color:#4caf7d;">Completed</span>';
           const roleBadge = m.ministry_role
             ? '<span class="badge badge-blue">' + m.ministry_role + '</span>'
-            : '<span style="color:var(--text-muted);">—</span>';
-          const nameStr = (m.full_name || '').replace(/'/g, "\\'");
+            : '<span style="color:var(--text-muted);">Awaiting Pastor</span>';
           return `<tr>
             <td><strong>${m.full_name}</strong></td>
             <td>${m.family_name || '—'}</td>
             <td>${statusBadge}</td>
             <td>${roleBadge}</td>
-            <td><button class="btn-sm" style="background:rgba(201,168,76,0.15);color:#c9a84c;" onclick='assignRole("${m.id}", "${nameStr}")'>Assign Role</button></td>
           </tr>`;
         }).join('')}
       </tbody>

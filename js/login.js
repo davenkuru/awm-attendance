@@ -25,15 +25,18 @@ let selectedRole = 'admin';
 
 function selectRole(role) {
   selectedRole = role;
-  document.getElementById('role-admin').classList.toggle('active', role === 'admin');
-  document.getElementById('role-coordinator').classList.toggle('active', role === 'coordinator');
-  document.getElementById('login-title').textContent = role === 'coordinator' ? 'Coordinator Login' : 'Admin Login';
+  document.getElementById('role-admin')?.classList.toggle('active', role === 'admin');
+  document.getElementById('role-coordinator')?.classList.toggle('active', role === 'coordinator');
+  document.getElementById('role-pastor')?.classList.toggle('active', role === 'pastor');
+  const titles = { admin: 'Admin Login', coordinator: 'Coordinator Login', pastor: 'Pastor Login' };
+  document.getElementById('login-title').textContent = titles[role] || 'Sign In';
 }
 
 // Determine redirect destination based on role in user metadata
 function getRedirectUrl(userData) {
   const role = userData?.user_metadata?.role;
   if (role === 'coordinator') return 'coordinator/';
+  if (role === 'pastor')      return 'pastor/';
   return 'admin/';
 }
 
@@ -77,11 +80,10 @@ async function doLogin() {
     const actualRole = data.user?.user_metadata?.role || 'admin';
 
     // Validate selected role matches the account
-    if (selectedRole === 'coordinator' && actualRole !== 'coordinator') {
-      throw new Error('This account is not a coordinator account. Please select Admin.');
-    }
-    if (selectedRole === 'admin' && actualRole === 'coordinator') {
-      throw new Error('This is a coordinator account. Please select Coordinator.');
+    if (selectedRole !== actualRole) {
+      const roleNames = { admin: 'Admin', coordinator: 'Coordinator', pastor: 'Pastor' };
+      const expected  = roleNames[actualRole] || actualRole;
+      throw new Error(`This is a ${expected} account. Please select the correct role.`);
     }
 
     saveSession(data.access_token, email, expiresAt);

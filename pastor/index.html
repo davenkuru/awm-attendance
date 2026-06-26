@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pastor — Discipleship</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>(function(){document.documentElement.setAttribute('data-theme',localStorage.getItem('awm_theme')||'dark');})()</script>
+  <link rel="stylesheet" href="../css/base.css">
+  <link rel="stylesheet" href="../css/admin.css">
+</head>
+<body>
+
+<!-- APP -->
+<div id="app-screen">
+
+  <!-- Backdrop — tapping it closes the sidebar on mobile/tablet -->
+  <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="closeSidebar()"></div>
+
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-header-text">
+        <div class="brand">✝ Discipleship</div>
+        <div class="gold-line"></div>
+        <div class="sub" id="sidebar-sub">— Pastor</div>
+      </div>
+      <button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()" title="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+    <div class="nav">
+      <div class="nav-item active" onclick="showPage('dashboard')">
+        <span class="icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
+        <span class="nav-label"> Dashboard</span>
+      </div>
+      <div class="nav-item" onclick="showPage('members')">
+        <span class="icon"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></span>
+        <span class="nav-label"> Completed Members</span>
+      </div>
+      <div class="nav-item" onclick="showPage('roles')">
+        <span class="icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><polyline points="15 11 17 13 21 9"/></svg></span>
+        <span class="nav-label"> Ministry Roles</span>
+      </div>
+    </div>
+    <div class="sidebar-footer">
+      <a href="../profile.html" class="user-profile-link" id="user-profile-link" title="View profile">
+        <div class="user-avatar" id="user-avatar">?</div>
+        <div class="user-details">
+          <div class="user-name" id="user-name-display">—</div>
+          <div class="user-role" id="user-role-display">Pastor</div>
+        </div>
+      </a>
+      <button class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()">
+        <span id="theme-icon">🌙</span> <span id="theme-label">Light mode</span>
+      </button>
+      <button class="btn-logout" onclick="doLogout()">Sign Out</button>
+    </div>
+  </nav>
+
+  <main class="main">
+
+    <!-- Mobile top bar -->
+    <div class="mobile-topbar" id="mobile-topbar">
+      <button class="sidebar-toggle" onclick="toggleSidebar()" title="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="mobile-topbar-title">✝ Pastor</div>
+      <div style="width:36px;"></div>
+    </div>
+
+    <!-- ══ DASHBOARD ══ -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-title">Dashboard</div>
+      <div class="page-sub" id="dash-date">—</div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <button class="quick-action-btn" onclick="showPage('members');setMemberTab('pending')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          Awaiting Assignment
+        </button>
+        <button class="quick-action-btn" onclick="showPage('members');setMemberTab('assigned')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+          Assigned Members
+        </button>
+        <button class="quick-action-btn" onclick="showPage('roles')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+          Manage Roles
+        </button>
+      </div>
+
+      <!-- Stat Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+          <div class="stat-label">Total Completed</div>
+          <div class="stat-value" id="stat-total-completed">—</div>
+          <div class="stat-desc">Finished all 3 levels</div>
+        </div>
+        <div class="stat-card clickable" onclick="showPage('members');setMemberTab('pending')">
+          <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <div class="stat-label">Awaiting Assignment</div>
+          <div class="stat-value" id="stat-pending">—</div>
+          <div class="stat-desc">No ministry role yet</div>
+        </div>
+        <div class="stat-card clickable" onclick="showPage('members');setMemberTab('assigned')">
+          <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="20 6 9 17 4 12"/></svg>
+          <div class="stat-label">Role Assigned</div>
+          <div class="stat-value" id="stat-assigned">—</div>
+          <div class="stat-desc">In active ministry</div>
+        </div>
+        <div class="stat-card">
+          <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <div class="stat-label">Ministry Roles</div>
+          <div class="stat-value" id="stat-roles-count">—</div>
+          <div class="stat-desc">Defined in system</div>
+        </div>
+      </div>
+
+      <!-- Awaiting Assignment list -->
+      <div class="table-card" style="padding:20px;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div style="font-size:13px;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;">Awaiting Role Assignment</div>
+          <button class="btn-sm" onclick="showPage('members');setMemberTab('pending')">View All →</button>
+        </div>
+        <div id="dash-pending-list">
+          <div style="color:var(--text-muted);font-size:13px;">Loading…</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ MEMBERS ══ -->
+    <div class="page" id="page-members">
+      <div class="page-title">Completed Members</div>
+      <div class="page-sub">Assign ministry roles to discipleship graduates</div>
+
+      <!-- Tabs -->
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <button id="mtab-pending-btn" class="tab-btn active" onclick="setMemberTab('pending')" style="font-size:13px;padding:6px 16px;">Awaiting Assignment</button>
+        <button id="mtab-assigned-btn" class="tab-btn" onclick="setMemberTab('assigned')" style="font-size:13px;padding:6px 16px;">Role Assigned</button>
+      </div>
+
+      <!-- Pending tab -->
+      <div id="tab-pending">
+        <div class="table-card" style="padding:20px;">
+          <div id="pending-members-list">
+            <div style="color:var(--text-muted);font-size:13px;padding:20px;text-align:center;"><span class="spinner"></span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Assigned tab -->
+      <div id="tab-assigned" style="display:none;">
+        <div class="table-card" style="padding:20px;">
+          <div id="assigned-members-list">
+            <div style="color:var(--text-muted);font-size:13px;padding:20px;text-align:center;"><span class="spinner"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ MINISTRY ROLES ══ -->
+    <div class="page" id="page-roles">
+      <div class="page-title">Ministry Roles</div>
+      <div class="page-sub">Manage predefined roles available for assignment</div>
+
+      <div class="table-card" style="padding:20px;margin-bottom:20px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+          <input type="text" id="new-role-input" placeholder="New role name…" style="flex:1;" />
+          <button class="btn-primary" onclick="addMinistryRole()" style="white-space:nowrap;">+ Add Role</button>
+        </div>
+        <div id="roles-list">
+          <div style="color:var(--text-muted);font-size:13px;padding:20px;text-align:center;"><span class="spinner"></span></div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══ ASSIGN ROLE MODAL ══ -->
+<div class="modal-overlay" id="assign-modal-overlay" onclick="closeAssignModal()" style="display:none;"></div>
+<div class="modal" id="assign-modal" style="display:none;">
+  <div class="modal-header">
+    <div class="modal-title">Assign Ministry Role</div>
+    <button class="modal-close" onclick="closeAssignModal()">✕</button>
+  </div>
+  <div class="modal-body">
+    <p id="assign-modal-name" style="font-size:15px;font-weight:600;color:var(--gold);margin-bottom:16px;"></p>
+    <div class="form-group">
+      <label>Select Role</label>
+      <select id="assign-role-select">
+        <option value="">— Select a role —</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Or type a custom role</label>
+      <input type="text" id="assign-role-custom" placeholder="e.g. Drama Ministry, Media Director…" />
+    </div>
+    <div id="assign-modal-error" style="color:var(--rust);font-size:13px;min-height:18px;"></div>
+  </div>
+  <div class="modal-footer">
+    <button class="btn-secondary" onclick="closeAssignModal()">Cancel</button>
+    <button class="btn-primary" id="assign-confirm-btn" onclick="doAssignRole()">Assign Role</button>
+  </div>
+</div>
+
+<script src="../js/config.js"></script>
+<script src="../js/api.js"></script>
+<script src="../js/theme.js"></script>
+<script src="../js/pastor.js"></script>
+</body>
+</html>
