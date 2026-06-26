@@ -2278,7 +2278,7 @@ async function renderQR() {
     const session = await getOrCreateSession(today);
     if (session && session.id) sessionParam = `?session=${session.id}`;
   } catch(e) { /* fall back to no param */ }
-  const url = `${SITE_URL}/index.html${sessionParam}`;
+  const url = `${SITE_URL}/attendance/${sessionParam}`;
   document.getElementById('qr-url-text').textContent = url;
   drawQR(url);
 }
@@ -2321,7 +2321,7 @@ async function openAttendancePage() {
     const session = await getOrCreateSession(today);
     if (session && session.id) sessionParam = `?session=${session.id}`;
   } catch(e) { /* fall back */ }
-  const url = `${SITE_URL}/index.html${sessionParam}`;
+  const url = `${SITE_URL}/attendance/${sessionParam}`;
   window.open(url, '_blank');
 }
 
