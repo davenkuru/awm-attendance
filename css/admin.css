@@ -518,6 +518,26 @@ input:focus, select:focus { border-color: var(--gold); }
   font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif;
 }
 .btn-cancel:hover { background: var(--surface-3); }
+/* Modal subcomponents */
+.modal-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 18px;
+}
+.modal-title { font-size: 17px; font-weight: 700; color: var(--text); }
+.modal-close {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-muted); font-size: 18px; line-height: 1;
+  padding: 4px 8px; border-radius: 6px;
+}
+.modal-close:hover { color: var(--text); background: var(--surface-2); }
+.modal-body  { margin-bottom: 4px; }
+.modal-footer { display: flex; gap: 10px; margin-top: 20px; justify-content: flex-end; }
+.btn-secondary {
+  padding: 9px 18px; background: var(--surface-2); color: var(--text);
+  border: 1px solid var(--border); border-radius: 8px; font-size: 14px;
+  font-weight: 600; cursor: pointer; font-family: 'Inter', sans-serif;
+}
+.btn-secondary:hover { background: var(--surface-3); }
 
 /* ── Empty state ── */
 .empty-state { text-align: center; padding: 48px 20px; color: var(--text-muted); }
