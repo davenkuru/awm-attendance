@@ -343,30 +343,33 @@ async function saveEditRole(id) {
 }
 
 // ── Assign Role Modal ─────────────────────────────────────────
-function openAssignModal(id, name) {
+async function openAssignModal(id, name) {
   _assignTargetId = id;
 
   const nameEl = document.getElementById('assign-modal-name');
   if (nameEl) nameEl.textContent = name;
 
-  // Populate dropdown with current roles
-  const select = document.getElementById('assign-role-select');
-  if (select) {
-    select.innerHTML = '<option value="">— Select a role —</option>' +
-      _ministryRoles.map(r => `<option value="${esc(r.name)}">${esc(r.name)}</option>`).join('');
-  }
-
-  // Clear custom input and error
+  // Clear custom input and error before showing
   const customInput = document.getElementById('assign-role-custom');
   const errorEl     = document.getElementById('assign-modal-error');
   if (customInput) customInput.value = '';
   if (errorEl)     errorEl.textContent = '';
 
+  // Show modal immediately, populate dropdown after fresh fetch
   const overlay = document.getElementById('assign-modal-overlay');
   overlay.setAttribute('style',
     'display:flex;position:fixed;top:0;left:0;right:0;bottom:0;' +
     'background:rgba(0,0,0,0.6);z-index:1000;align-items:center;justify-content:center;'
   );
+
+  // Always fetch fresh roles so newly added roles appear
+  await fetchMinistryRoles();
+
+  const select = document.getElementById('assign-role-select');
+  if (select) {
+    select.innerHTML = '<option value="">— Select a role —</option>' +
+      _ministryRoles.map(r => `<option value="${esc(r.name)}">${esc(r.name)}</option>`).join('');
+  }
 }
 
 function closeAssignModal() {
