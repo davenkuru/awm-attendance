@@ -308,13 +308,11 @@ function openAssignModal(id, name) {
   if (customInput) customInput.value = '';
   if (errorEl)     errorEl.textContent = '';
 
-  document.getElementById('assign-modal-overlay').style.display = 'block';
-  document.getElementById('assign-modal').style.display = 'block';
+  document.getElementById('assign-modal-overlay').classList.add('open');
 }
 
 function closeAssignModal() {
-  document.getElementById('assign-modal-overlay').style.display = 'none';
-  document.getElementById('assign-modal').style.display = 'none';
+  document.getElementById('assign-modal-overlay').classList.remove('open');
   _assignTargetId = null;
 }
 
