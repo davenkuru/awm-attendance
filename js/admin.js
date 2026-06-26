@@ -50,6 +50,12 @@ async function fetchAndShowUser(token) {
       selectedLevel = data.user_metadata.level_id;
     }
 
+    // Hide Completed tab for Level 1 and Level 2 coordinators
+    if (window.IS_COORDINATOR && data.user_metadata?.level_id !== 3) {
+      const completedBtn = document.getElementById('mview-completed-btn');
+      if (completedBtn) completedBtn.style.display = 'none';
+    }
+
     const name    = data.user_metadata?.full_name || data.email?.split('@')[0] || 'Admin';
     const levelId = data.user_metadata?.level_id;
     document.getElementById('user-name-display').textContent = name;
