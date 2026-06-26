@@ -69,6 +69,9 @@ async function init() {
   const session = loadSession();
   if (!session) { window.location.replace('../login.html'); return; }
 
+  // Set auth token so api() uses the pastor's JWT (required for PATCH/POST/DELETE)
+  setAuthToken(session.token);
+
   // Verify role
   try {
     const res = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
