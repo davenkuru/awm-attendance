@@ -265,13 +265,16 @@ async function addMinistryRole() {
   if (!name) return;
   try {
     await api('ministry_roles', {
-      method: 'POST',
-      body: JSON.stringify({ name })
+      method:  'POST',
+      headers: { 'Prefer': 'return=minimal' },
+      body:    JSON.stringify({ name })
     });
     input.value = '';
     await loadMinistryRoles();
   } catch (e) {
-    alert('Could not add role: ' + (e.message || 'Unknown error'));
+    const msg = e.message || 'Unknown error';
+    console.error('addMinistryRole error:', msg);
+    alert('Could not add role: ' + msg);
   }
 }
 
@@ -334,8 +337,9 @@ async function doAssignRole() {
 
   try {
     await api(`people?id=eq.${_assignTargetId}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ discipleship_status: 'ready_for_role', ministry_role: role })
+      method:  'PATCH',
+      headers: { 'Prefer': 'return=minimal' },
+      body:    JSON.stringify({ discipleship_status: 'ready_for_role', ministry_role: role })
     });
 
     closeAssignModal();
@@ -346,7 +350,10 @@ async function doAssignRole() {
     if (_currentMemberTab === 'assigned') loadAssignedMembers();
 
   } catch (e) {
-    if (errorEl) errorEl.textContent = 'Error: ' + (e.message || 'Could not assign role.');
+    const msg = e.message || 'Could not assign role.';
+    if (errorEl) errorEl.textContent = 'Error: ' + msg;
+    console.error('doAssignRole error:', msg);
+    alert('Assign role failed: ' + msg);
   } finally {
     if (btn) { btn.disabled = false; btn.textContent = 'Assign Role'; }
   }
