@@ -305,6 +305,7 @@
       <div style="display:flex;gap:8px;margin-bottom:16px;">
         <button id="mview-active-btn" class="tab-btn active" onclick="setMemberView('active')" style="font-size:13px;padding:6px 16px;">Active Members</button>
         <button id="mview-graduated-btn" class="tab-btn" onclick="setMemberView('graduated')" style="font-size:13px;padding:6px 16px;">🎓 Graduated</button>
+        <button id="mview-completed-btn" class="tab-btn" onclick="setMemberView('completed')" style="font-size:13px;padding:6px 16px;">✅ Completed</button>
       </div>
 
       <div class="table-card">
@@ -361,6 +362,8 @@
             </tbody>
           </table>
         </div>
+        <!-- Completed & Ministry Ready (shown in completed view) -->
+        <div id="completed-body" style="display:none;"></div>
         <table id="active-members-table">
           <thead><tr><th style="width:32px;"><input type="checkbox" id="select-all-cb" onchange="toggleSelectAll(this.checked)" /></th><th>Name</th><th>Family Group</th><th>Phone</th><th>Status</th><th>Actions</th></tr></thead>
           <tbody id="members-body">

@@ -221,6 +221,7 @@ async function loadDashboard() {
 
     renderLevelCards(people, sessions, checkIns);
     renderDashboardDetail(people, sessions, checkIns);
+    loadMinistryReady();
 
   } catch(e) {
     console.error('Dashboard error:', e);
@@ -1259,8 +1260,10 @@ function renderMembersTable(members) {
       const toggleBtn = active
         ? '<button class="btn-sm" style="background:rgba(239,68,68,0.1);color:#ef4444;" onclick=\'disableMember("' + m.id + '", "' + nameStr + '")\'>Disable</button>'
         : '<button class="btn-sm" style="background:rgba(76,175,125,0.15);color:#4caf7d;" onclick=\'enableMember("' + m.id + '", "' + nameStr + '")\'>Enable</button>';
-      const graduateBtn = (window.IS_COORDINATOR && selectedLevel < 3)
-        ? '<button class="btn-sm" style="background:rgba(76,175,125,0.15);color:#4caf7d;font-weight:600;" onclick=\'graduateMember("' + m.id + '", "' + nameStr + '")\'>Graduate →</button>'
+      const graduateBtn = window.IS_COORDINATOR
+        ? (selectedLevel < 3
+            ? '<button class="btn-sm" style="background:rgba(76,175,125,0.15);color:#4caf7d;font-weight:600;" onclick=\'graduateMember("' + m.id + '", "' + nameStr + '")\'>Graduate →</button>'
+            : '<button class="btn-sm" style="background:rgba(201,168,76,0.15);color:#c9a84c;font-weight:600;" onclick=\'graduateMember("' + m.id + '", "' + nameStr + '")\'>Mark Completed ✓</button>')
         : '';
       const actionBtns = '<button class="btn-sm" style="background:#f0fdf4;color:#166534;" onclick=\'viewMemberAttendance("' + m.id + '", "' + nameStr + '")\'>History</button>'
                        + '<button class="btn-sm btn-edit" onclick=\'openEditModal(' + memberJson + ')\'>Edit</button>'
@@ -1310,8 +1313,10 @@ function renderMembersTable(members) {
     const histBtn     = '<button class="btn-sm" onclick=\'viewMemberAttendance("' + m.id + '", "' + nameStr + '")\'>History</button>';
     const editBtn     = '<button class="btn-sm btn-edit" onclick=\'openEditModal(' + memberJson + ')\'>Edit</button>';
     const delBtn      = '<button class="btn-sm btn-delete" onclick=\'openDeleteModal("' + m.id + '", "' + nameStr + '")\'>Delete</button>';
-    const gradBtn     = (window.IS_COORDINATOR && lvl < 3)
-      ? '<button class="btn-sm" style="background:rgba(76,175,125,0.15);color:#4caf7d;font-weight:600;" onclick=\'graduateMember("' + m.id + '", "' + nameStr + '")\'>Graduate →</button>'
+    const gradBtn = window.IS_COORDINATOR
+      ? (lvl < 3
+          ? '<button class="btn-sm" style="background:rgba(76,175,125,0.15);color:#4caf7d;font-weight:600;" onclick=\'graduateMember("' + m.id + '", "' + nameStr + '")\'>Graduate →</button>'
+          : '<button class="btn-sm" style="background:rgba(201,168,76,0.15);color:#c9a84c;font-weight:600;" onclick=\'graduateMember("' + m.id + '", "' + nameStr + '")\'>Mark Completed ✓</button>')
       : '';
 
     return '<div class="member-card' + (active ? '' : ' mc-disabled') + '" style="position:relative;">'
@@ -1351,52 +1356,135 @@ async function enableMember(id, name) {
 
 async function doGraduate(ids, names) {
   const nextLevel = selectedLevel + 1;
-  if (nextLevel > 3) { alert('These members are already at the highest level.'); return; }
+  const completingProgram = selectedLevel === 3;
 
-  const label = ids.length === 1 ? `Graduate ${names[0]} to Level ${nextLevel}?` : `Graduate ${ids.length} members to Level ${nextLevel}?`;
-  if (!confirm(label + '\n\nThis will move them out of Level ' + selectedLevel + ' and into Level ' + nextLevel + '. Their attendance history is kept.')) return;
+  let label, confirmMsg;
+  if (completingProgram) {
+    label = ids.length === 1
+      ? `Mark ${names[0]} as Completed?`
+      : `Mark ${ids.length} members as Completed?`;
+    confirmMsg = label + '\n\nThey have finished all discipleship levels. You can then assign them a ministry role.';
+  } else {
+    label = ids.length === 1
+      ? `Graduate ${names[0]} to Level ${nextLevel}?`
+      : `Graduate ${ids.length} members to Level ${nextLevel}?`;
+    confirmMsg = label + '\n\nThis will move them out of Level ' + selectedLevel + ' and into Level ' + nextLevel + '. Their attendance history is kept.';
+  }
+  if (!confirm(confirmMsg)) return;
 
   const today = new Date().toISOString().split('T')[0];
 
   try {
     for (const id of ids) {
-      // 1. Check if an enrollment row exists for this level
+      // 1. Mark current level enrollment as graduated
       const existing = await api(`level_enrollments?person_id=eq.${id}&level_id=eq.${selectedLevel}&limit=1`);
       if (existing && existing.length > 0) {
-        // Update existing row
         await api(`level_enrollments?person_id=eq.${id}&level_id=eq.${selectedLevel}`, {
           method: 'PATCH',
           body: JSON.stringify({ graduated_at: today, status: 'graduated' })
         });
       } else {
-        // No row existed — insert a graduated record so history is preserved
         await api('level_enrollments', {
           method: 'POST',
           body: JSON.stringify({ person_id: id, level_id: selectedLevel, enrolled_at: today, graduated_at: today, status: 'graduated' })
         });
       }
-      // 2. Insert new enrollment for next level (ignore if already exists)
-      try {
-        await api('level_enrollments', {
-          method: 'POST',
-          body: JSON.stringify({ person_id: id, level_id: nextLevel, enrolled_at: today, status: 'active' })
+
+      if (completingProgram) {
+        // Mark as completed — no next level enrollment
+        await api(`people?id=eq.${id}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ discipleship_status: 'completed' })
         });
-      } catch(e) { /* already enrolled — skip */ }
-      // 3. Update current_level_id on the person
-      await api(`people?id=eq.${id}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ current_level_id: nextLevel })
-      });
+      } else {
+        // Enroll in next level
+        try {
+          await api('level_enrollments', {
+            method: 'POST',
+            body: JSON.stringify({ person_id: id, level_id: nextLevel, enrolled_at: today, status: 'active' })
+          });
+        } catch(e) { /* already enrolled — skip */ }
+        await api(`people?id=eq.${id}`, {
+          method: 'PATCH',
+          body: JSON.stringify({ current_level_id: nextLevel })
+        });
+      }
     }
     clearMemberSelection();
     loadMembers();
   } catch(e) {
-    alert('Error graduating member(s): ' + (e.message || 'Unknown error'));
+    alert('Error: ' + (e.message || 'Unknown error'));
   }
 }
 
 async function graduateMember(id, name) {
   await doGraduate([id], [name]);
+}
+
+// ── Assign Ministry Role ──────────────────────────────────────────────
+async function assignRole(id, name) {
+  const role = prompt(`Assign a ministry role to ${name}:\n(e.g. Cell Leader, Worship, Ushering, Children's Ministry)`);
+  if (!role || !role.trim()) return;
+  try {
+    await api(`people?id=eq.${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ discipleship_status: 'ready_for_role', ministry_role: role.trim() })
+    });
+    loadMinistryReady();
+    loadCompleted();
+  } catch(e) {
+    alert('Error assigning role: ' + (e.message || 'Unknown error'));
+  }
+}
+
+// ── Load Completed Members ────────────────────────────────────────────
+async function loadCompleted() {
+  const container = document.getElementById('completed-body');
+  if (!container) return;
+  const data = await api('people?discipleship_status=in.(completed,ready_for_role)&order=full_name&select=id,full_name,family_name,phone_number,discipleship_status,ministry_role') || [];
+  if (!data.length) { container.innerHTML = '<p style="color:var(--text-muted);padding:16px;">No completed members yet.</p>'; return; }
+  container.innerHTML = `
+    <table class="data-table">
+      <thead><tr>
+        <th>Name</th><th>Family</th><th>Status</th><th>Ministry Role</th><th>Actions</th>
+      </tr></thead>
+      <tbody>
+        ${data.map(m => {
+          const statusBadge = m.discipleship_status === 'ready_for_role'
+            ? '<span class="badge" style="background:rgba(201,168,76,0.2);color:#c9a84c;">Ready for Role</span>'
+            : '<span class="badge" style="background:rgba(76,175,125,0.15);color:#4caf7d;">Completed</span>';
+          const roleBadge = m.ministry_role
+            ? '<span class="badge badge-blue">' + m.ministry_role + '</span>'
+            : '<span style="color:var(--text-muted);">—</span>';
+          const nameStr = (m.full_name || '').replace(/'/g, "\\'");
+          return `<tr>
+            <td><strong>${m.full_name}</strong></td>
+            <td>${m.family_name || '—'}</td>
+            <td>${statusBadge}</td>
+            <td>${roleBadge}</td>
+            <td><button class="btn-sm" style="background:rgba(201,168,76,0.15);color:#c9a84c;" onclick='assignRole("${m.id}", "${nameStr}")'>Assign Role</button></td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table>`;
+}
+
+// ── Load Ministry Ready (dashboard card) ─────────────────────────────
+async function loadMinistryReady() {
+  const container = document.getElementById('ministry-ready-list');
+  if (!container) return;
+  const data = await api('people?discipleship_status=eq.ready_for_role&order=full_name&select=full_name,ministry_role,family_name') || [];
+  const countEl = document.getElementById('ministry-ready-count');
+  if (countEl) countEl.textContent = data.length;
+  if (!data.length) { container.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">No members assigned yet.</p>'; return; }
+  container.innerHTML = data.map(m => `
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);">
+      <div>
+        <div style="font-weight:600;font-size:13px;">${m.full_name}</div>
+        <div style="font-size:11px;color:var(--text-muted);">${m.family_name || ''}</div>
+      </div>
+      <span class="badge" style="background:rgba(201,168,76,0.2);color:#c9a84c;">${m.ministry_role}</span>
+    </div>`).join('');
 }
 
 async function bulkGraduate() {
@@ -1436,7 +1524,7 @@ function clearMemberSelection() {
 // GRADUATED VIEW
 // ════════════════════════════════════
 
-let memberView = 'active';        // 'active' | 'graduated'
+let memberView = 'active';        // 'active' | 'graduated' | 'completed'
 let graduatedLevelFilter = 'all'; // 'all' | '1' | '2' | '3'
 const LEVEL_NAMES_MAP = { 1: 'Level 1', 2: 'Level 2', 3: 'Level 3 — S.H.A.P.E' };
 
@@ -1446,6 +1534,7 @@ function setMemberView(view) {
   // Toggle button styles
   document.getElementById('mview-active-btn')?.classList.toggle('active', view === 'active');
   document.getElementById('mview-graduated-btn')?.classList.toggle('active', view === 'graduated');
+  document.getElementById('mview-completed-btn')?.classList.toggle('active', view === 'completed');
 
   // Show/hide sections
   const activeTable  = document.getElementById('active-members-table');
@@ -1473,7 +1562,24 @@ function setMemberView(view) {
     if (uploadBtn)    uploadBtn.style.display = 'none';
     if (pdfBtn)       pdfBtn.style.display = 'none';
     if (searchInput)  searchInput.placeholder = 'Search graduated members…';
+    const completedBody = document.getElementById('completed-body');
+    if (completedBody) completedBody.style.display = 'none';
     loadGraduated();
+  } else if (view === 'completed') {
+    if (activeTable)  activeTable.style.display = 'none';
+    if (membersGrid)  membersGrid.style.display = 'none';
+    if (gradBody)     gradBody.style.display = 'none';
+    if (gradToolbar)  gradToolbar.style.display = 'none';
+    if (bulkBar)      bulkBar.style.display = 'none';
+    if (levelTabs)    levelTabs.style.display = 'none';
+    if (gradTabs)     gradTabs.style.display = 'none';
+    if (addBtn)       addBtn.style.display = 'none';
+    if (uploadBtn)    uploadBtn.style.display = 'none';
+    if (pdfBtn)       pdfBtn.style.display = 'none';
+    if (searchInput)  searchInput.placeholder = 'Search completed members…';
+    const completedBody = document.getElementById('completed-body');
+    if (completedBody) completedBody.style.display = 'block';
+    loadCompleted();
   } else {
     if (activeTable)  activeTable.style.display = '';
     if (membersGrid)  membersGrid.style.display = '';
@@ -1485,6 +1591,8 @@ function setMemberView(view) {
     if (uploadBtn)    uploadBtn.style.display = '';
     if (pdfBtn)       pdfBtn.style.display = '';
     if (searchInput)  searchInput.placeholder = window.IS_COORDINATOR ? 'Search name…' : 'Search name or family…';
+    const completedBody = document.getElementById('completed-body');
+    if (completedBody) completedBody.style.display = 'none';
     loadMembers();
   }
 }

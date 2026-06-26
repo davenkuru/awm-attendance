@@ -102,6 +102,18 @@
         </div>
       </div>
 
+      <!-- Ministry Ready card -->
+      <div class="table-card" style="padding:20px;margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+          <div>
+            <div style="font-size:11px;font-weight:600;color:var(--gold);text-transform:uppercase;letter-spacing:.08em;">Ministry Ready</div>
+            <div style="font-size:22px;font-weight:800;color:var(--text);" id="ministry-ready-count">—</div>
+          </div>
+          <button class="btn-sm" onclick="setMemberView('completed');showPage('members');" style="background:rgba(201,168,76,0.15);color:#c9a84c;">View All →</button>
+        </div>
+        <div id="ministry-ready-list"><p style="color:var(--text-muted);font-size:13px;">Loading…</p></div>
+      </div>
+
       <!-- Last session + Trend row -->
       <div class="dash-two-col" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:20px;">
         <div class="table-card" style="padding:20px;">
@@ -285,6 +297,7 @@
       <div style="display:flex;gap:8px;margin-bottom:12px;">
         <button id="mview-active-btn" class="tab-btn active" onclick="setMemberView('active')" style="font-size:13px;padding:6px 16px;">Active Members</button>
         <button id="mview-graduated-btn" class="tab-btn" onclick="setMemberView('graduated')" style="font-size:13px;padding:6px 16px;">🎓 Graduated</button>
+        <button id="mview-completed-btn" class="tab-btn" onclick="setMemberView('completed')" style="font-size:13px;padding:6px 16px;">✅ Completed</button>
       </div>
 
       <!-- Level filter tabs (active view only) -->
@@ -365,6 +378,9 @@
             </tbody>
           </table>
         </div>
+        <!-- Completed & Ministry Ready (shown in completed view) -->
+        <div id="completed-body" style="display:none;"></div>
+
         <div class="member-cards-grid" id="members-body">
           <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--text-muted);"><span class="spinner"></span></div>
         </div>
