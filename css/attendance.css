@@ -1,0 +1,257 @@
+/* ═══════════════════════════════════════════════════════════
+   ATTENDANCE.CSS — styles for index.html (member check-in)
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Page-specific dark-mode tokens ── */
+:root {
+  --surface:     #10172a;
+  --surface-2:   #192035;
+  --surface-3:   #1e2840;
+  --border:      #283048;
+  --border-gold: rgba(var(--gold-rgb),0.3);
+  --shadow:      0 8px 40px rgba(0,0,0,0.55);
+  --radius:      14px;
+  font-size: 16px;
+}
+
+/* ── Background ── */
+body {
+  background:
+    radial-gradient(900px 700px at 15% -5%, rgba(var(--gold-rgb),0.05), transparent 60%),
+    radial-gradient(600px 400px at 105% 15%, rgba(var(--gold-rgb),0.03), transparent 55%),
+    var(--dark);
+  min-height: 100vh;
+}
+
+/* ── Layout shell ── */
+.shell {
+  max-width: 560px; margin: 0 auto;
+  min-height: 100vh; display: flex; flex-direction: column;
+}
+
+/* ── Gold top band ── */
+.band {
+  height: 3px; width: 100%;
+  background: linear-gradient(90deg, var(--gold-dark) 0%, var(--gold) 50%, var(--gold-light) 100%);
+}
+
+/* ── Header ── */
+header.top {
+  padding: 28px 22px 18px;
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+}
+.brand { display: flex; flex-direction: column; gap: 2px; }
+.brand .mark {
+  font-size: 11px; text-transform: uppercase; letter-spacing: .2em;
+  color: var(--gold); font-weight: 600;
+}
+.brand h1 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  margin: 4px 0 0; font-size: 30px; font-weight: 700; line-height: 1.15; color: var(--white);
+}
+.brand .sub { font-size: 13px; color: var(--text-muted); margin-top: 3px; }
+
+main { flex: 1; padding: 6px 22px 40px; }
+
+/* ── Date pill ── */
+.date-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; letter-spacing: .05em; color: var(--gold);
+  background: rgba(var(--gold-rgb),0.08); border: 1px solid var(--border-gold);
+  border-radius: 999px; padding: 6px 14px; margin-bottom: 18px;
+}
+
+/* ── Card ── */
+.card {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow); padding: 22px;
+}
+
+/* ── Segmented tabs ── */
+.seg {
+  display: flex; background: var(--surface-2); border-radius: 10px;
+  padding: 4px; gap: 4px; margin-bottom: 18px;
+}
+.seg button {
+  flex: 1; border: none; background: transparent; padding: 9px 6px; border-radius: 8px;
+  font-family: 'Inter', sans-serif;
+  font-size: 13px; font-weight: 600; letter-spacing: .02em; color: var(--text-muted);
+  cursor: pointer; transition: all .15s ease;
+}
+.seg button.active {
+  background: var(--gold); color: var(--dark);
+  box-shadow: 0 2px 10px rgba(var(--gold-rgb),0.3);
+}
+
+/* ── Field label ── */
+.field-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px; text-transform: uppercase; letter-spacing: .14em;
+  color: var(--gold); font-weight: 600; display: block; margin-bottom: 8px;
+}
+
+/* ── Inputs ── */
+input[type="text"], input[type="tel"], select {
+  width: 100%; font-family: 'Inter', sans-serif;
+  font-size: 16px; padding: 13px 14px;
+  border: 1.5px solid var(--border); border-radius: 10px;
+  background: var(--surface-2); color: var(--text);
+  outline: none; transition: border-color .15s ease;
+  appearance: none; -webkit-appearance: none;
+}
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='9' viewBox='0 0 14 9'%3E%3Cpath d='M1 1L7 7L13 1' stroke='%23c8a96e' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center; padding-right: 38px;
+}
+input:focus, select:focus { border-color: var(--gold); }
+
+/* ── Result list ── */
+.result-list {
+  margin-top: 10px; max-height: 260px; overflow-y: auto;
+  border-radius: 10px; border: 1px solid transparent;
+}
+.result-item {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 12px 14px; border-radius: 9px; cursor: pointer;
+  transition: background .12s ease;
+}
+.result-item:hover, .result-item:active { background: var(--surface-2); }
+.result-item .nm { font-size: 15.5px; color: var(--text); }
+.result-item .fam {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px; text-transform: uppercase; letter-spacing: .06em;
+  color: var(--gold); border: 1px solid var(--border-gold);
+  padding: 3px 8px; border-radius: 999px; white-space: nowrap; margin-left: 10px;
+}
+.no-results { padding: 18px 4px; color: var(--text-muted); font-size: 14px; text-align: center; }
+
+/* ── Selected chip ── */
+.selected-chip {
+  display: flex; align-items: center; justify-content: space-between;
+  background: rgba(var(--gold-rgb),0.07); border: 1.5px solid var(--gold);
+  border-radius: 10px; padding: 13px 14px; margin-bottom: 14px;
+}
+.selected-chip .info .nm { font-size: 16px; font-weight: 600; color: var(--white); }
+.selected-chip .info .fam {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px; color: var(--gold); margin-top: 2px;
+  text-transform: uppercase; letter-spacing: .06em;
+}
+.selected-chip .info .phone {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px; color: var(--text-muted); margin-top: 2px;
+}
+.selected-chip button {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px; background: none; border: none;
+  color: #e74c3c; cursor: pointer; text-decoration: underline;
+}
+
+/* ── Buttons ── */
+.btn {
+  width: 100%; font-family: 'Inter', sans-serif;
+  font-size: 15.5px; font-weight: 700; letter-spacing: .02em;
+  padding: 15px 18px; border-radius: 10px; border: none;
+  cursor: pointer; transition: transform .08s ease, opacity .15s ease;
+}
+.btn:active { transform: scale(0.985); }
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold) 100%);
+  color: var(--dark); box-shadow: 0 4px 20px rgba(var(--gold-rgb),0.25);
+}
+.btn-primary:disabled { opacity: .4; cursor: not-allowed; box-shadow: none; }
+.btn-ghost { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
+
+/* ── Success screen ── */
+.success-wrap { text-align: center; padding: 50px 24px 30px; }
+.seal {
+  width: 84px; height: 84px; margin: 0 auto 22px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--gold-dark) 0%, var(--gold) 100%);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 8px 30px rgba(var(--gold-rgb),0.4);
+  animation: pop .45s cubic-bezier(.34,1.56,.64,1);
+}
+.seal svg { width: 38px; height: 38px; }
+.success-wrap h2 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 28px; color: var(--white); margin: 0 0 8px;
+}
+.success-wrap p { color: var(--text-muted); font-size: 14.5px; margin: 0 0 4px; }
+.success-wrap .fam-tag {
+  display: inline-block; margin-top: 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--gold); border: 1px solid var(--border-gold);
+  background: rgba(var(--gold-rgb),0.08); padding: 6px 14px; border-radius: 999px;
+}
+
+/* ── Hint ── */
+.hint {
+  font-size: 12.5px; color: var(--text-muted); margin-top: 10px;
+  text-align: center; font-family: 'Inter', sans-serif;
+}
+
+/* ── Spinner ── */
+.spinner {
+  width: 20px; height: 20px; border-radius: 50%;
+  border: 2.5px solid var(--border); border-top-color: var(--gold);
+  animation: spin .7s linear infinite;
+  margin: 24px auto; display: block;
+}
+
+/* ── Admin report link ── */
+.report-btn {
+  display: inline-flex; align-items: center;
+  padding: 8px 18px; border-radius: 999px;
+  border: 1.5px solid var(--border-gold);
+  background: transparent;
+  color: var(--gold); font-family: 'Inter', sans-serif;
+  font-size: 13px; font-weight: 600; letter-spacing: .04em;
+  text-decoration: none; transition: background .18s, border-color .18s;
+  white-space: nowrap;
+}
+.report-btn:hover { background: rgba(var(--gold-rgb),0.1); border-color: var(--gold); }
+[data-theme="light"] .report-btn { color: var(--gold); }
+
+/* ── Theme toggle ── */
+.theme-toggle {
+  background: none; border: 1.5px solid var(--border-gold);
+  border-radius: 50%; width: 38px; height: 38px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 17px; transition: border-color .2s, background .2s; flex-shrink: 0;
+}
+.theme-toggle:hover { background: rgba(var(--gold-rgb),0.1); border-color: var(--gold); }
+
+/* ── Light theme overrides ── */
+[data-theme="light"] body    { background: #f2f4f7; }
+[data-theme="light"] {
+  --surface:     #ffffff;
+  --surface-2:   #f0f2f5;
+  --surface-3:   #e4e8ee;
+  --border:      #d0d7e2;
+  --border-gold: rgba(var(--gold-rgb), 0.35);
+  --shadow:      0 4px 16px rgba(0,0,0,0.09);
+}
+[data-theme="light"] .band                                      { background: linear-gradient(90deg, var(--gold-dark) 0%, var(--gold) 50%, var(--gold-light) 100%); }
+[data-theme="light"] .seg button.active                         { background: var(--gold); color: #ffffff; }
+[data-theme="light"] .btn-primary                               { color: #ffffff; }
+[data-theme="light"] .date-pill                                 { background: rgba(var(--gold-rgb), 0.1); }
+[data-theme="light"] .result-item:hover,
+[data-theme="light"] .result-item:active                        { background: #f0f2f5; }
+[data-theme="light"] .success-wrap h2                           { color: #0d1117; }
+[data-theme="light"] .card                                      { background: #ffffff; }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .shell { max-width: 100%; }
+  header.top { padding: 20px 16px 14px; }
+  .brand h1  { font-size: 26px; }
+  main       { padding: 6px 16px 32px; }
+  .card      { padding: 16px; }
+  .btn       { font-size: 15px; padding: 14px; }
+  .date-pill { font-size: 11px; }
+}
+
+@media (min-width: 601px) and (max-width: 900px) {
+  .shell { max-width: 520px; }
+}

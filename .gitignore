@@ -1,0 +1,18 @@
+# Stale root-level duplicates
+/admin.html
+/coordinator.html
+/create_coordinators.sql
+
+# Unused JS
+/js/coordinator.js
+
+# Generated / scratch files
+AWM_ZTCC_POC.pdf
+build_poc.py
+audit.jsonl
+members_sample.csv
+members_sample_2.csv
+outputs/
+
+# OS
+.DS_Store

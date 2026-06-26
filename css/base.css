@@ -1,0 +1,47 @@
+/* ═══════════════════════════════════════════════════════════
+   BASE.CSS — shared reset, design tokens, and utilities
+   Loaded by both index.html (attendance) and admin.html
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { margin: 0; padding: 0; }
+
+/* ── Shared dark-mode design tokens ── */
+:root {
+  --dark:       #090d17;
+  --gold:       #c8a96e;
+  --gold-light: #ddbf88;
+  --gold-dark:  #9a7840;
+  --gold-rgb:   200, 169, 110;   /* RGB of --gold for rgba() usage */
+  --white:      #ffffff;
+  --text:       #e4ddd0;
+  --text-muted: #7a8ba0;
+  --error:      #c0392b;
+}
+
+/* ── Shared light-mode token overrides ── */
+[data-theme="light"] {
+  --gold:       #1a6dd9;         /* vibrant royal blue */
+  --gold-light: #2d7ff5;
+  --gold-dark:  #1254b5;
+  --gold-rgb:   26, 109, 217;    /* RGB of light-mode blue */
+  --white:      #0d1117;
+  --text:       #0d1117;
+  --text-muted: #4a5568;
+}
+
+/* ── Base body ── */
+body {
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Shared animations ── */
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes pop  { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-thumb { background: var(--border, #283048); border-radius: 99px; }

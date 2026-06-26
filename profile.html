@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile — Discipleship Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>(function(){document.documentElement.setAttribute('data-theme',localStorage.getItem('awm_theme')||'dark');})()</script>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <style>
+    /* Profile-specific additions only */
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      max-width: 860px;
+    }
+    .profile-grid .full-width { grid-column: 1 / -1; }
+
+    /* Avatar header inside table-card */
+    .profile-header-inner {
+      display: flex; align-items: center; gap: 20px; padding: 20px;
+    }
+    .avatar-lg {
+      width: 68px; height: 68px; border-radius: 50%; flex-shrink: 0;
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+      color: #090d17; font-size: 24px; font-weight: 700;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 4px 20px rgba(200,169,110,0.35);
+    }
+    .profile-header-info { flex: 1; min-width: 0; }
+    .profile-header-info .disp-name {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 24px; font-weight: 700; color: var(--white);
+      margin-bottom: 5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .role-badge {
+      display: inline-block; font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .1em;
+      color: var(--gold); background: rgba(200,169,110,0.12);
+      border: 1px solid rgba(200,169,110,0.3); border-radius: 999px; padding: 3px 12px;
+    }
+
+    /* Form fields inside table-card */
+    .pf-body { padding: 20px; }
+    .pf-field { margin-bottom: 16px; }
+    .pf-field:last-of-type { margin-bottom: 0; }
+    .pf-field label {
+      display: block; font-size: 11px; font-weight: 600; text-transform: uppercase;
+      letter-spacing: .1em; color: var(--text-muted); margin-bottom: 6px;
+    }
+    .pf-field input {
+      width: 100%; box-sizing: border-box; padding: 11px 14px;
+      background: var(--surface-2); color: var(--text);
+      border: 1.5px solid var(--border); border-radius: 10px;
+      font-size: 14px; font-family: 'Inter', sans-serif; outline: none;
+      transition: border-color .15s;
+    }
+    .pf-field input:focus { border-color: var(--gold); }
+
+    /* Info rows — same pattern as table rows */
+    .info-row {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 13px 20px; border-bottom: 1px solid var(--border); gap: 12px;
+    }
+    .info-row:last-child { border-bottom: none; }
+    .info-label { font-size: 13px; color: var(--text-muted); font-weight: 500; }
+    .info-value { font-size: 14px; color: var(--text); font-weight: 600; text-align: right; word-break: break-all; }
+
+    /* Save button */
+    .btn-save {
+      width: 100%; padding: 12px;
+      background: linear-gradient(135deg, var(--gold-dark), var(--gold)); color: #090d17;
+      border: none; border-radius: 10px;
+      font-size: 14px; font-weight: 700; font-family: 'Inter', sans-serif;
+      cursor: pointer; transition: opacity .2s;
+      box-shadow: 0 4px 18px rgba(200,169,110,0.2); margin-top: 16px;
+    }
+    .btn-save:hover { opacity: .9; }
+    .btn-save:disabled { opacity: .4; cursor: not-allowed; }
+
+    .status-msg {
+      font-size: 13px; text-align: center; min-height: 18px;
+      margin-top: 10px; font-family: 'Inter', sans-serif;
+    }
+    .status-msg.ok  { color: #4caf7d; }
+    .status-msg.err { color: #ef4444; }
+
+    /* Password strength */
+    .pw-strength { margin-top: 6px; }
+    .pw-strength-bar { height: 4px; border-radius: 99px; background: var(--border); overflow: hidden; margin-bottom: 4px; }
+    .pw-strength-fill { height: 100%; border-radius: 99px; transition: width .3s, background .3s; width: 0; }
+    .pw-strength-label { font-size: 11px; color: var(--text-muted); }
+
+    /* Responsive — stack to single column on narrow screens */
+    @media (max-width: 700px) {
+      .profile-grid { grid-template-columns: 1fr; }
+      .profile-grid .full-width { grid-column: 1; }
+    }
+
+    [data-theme="light"] .profile-header-info .disp-name { color: #0d1117; }
+    [data-theme="light"] .avatar-lg { color: #fff; }
+  </style>
+</head>
+<body>
+
+<div id="app-screen">
+
+  <!-- Backdrop -->
+  <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="closeSidebar()"></div>
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-header-text">
+        <div class="brand">✝ Discipleship</div>
+        <div class="gold-line"></div>
+        <div class="sub" id="sidebar-sub">Admin Panel</div>
+      </div>
+      <button class="sidebar-toggle" id="sidebar-toggle" onclick="toggleSidebar()" title="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+    <div class="nav" id="profile-nav"><!-- populated by profile.js --></div>
+
+    <div class="sidebar-footer">
+      <a href="profile.html" class="user-profile-link" id="user-profile-link"
+         title="View profile" style="border-color:var(--gold);">
+        <div class="user-avatar" id="user-avatar">?</div>
+        <div class="user-details">
+          <div class="user-name" id="user-name-display">—</div>
+          <div class="user-role" id="user-role-display">Admin</div>
+        </div>
+      </a>
+      <button class="theme-toggle-btn" id="theme-toggle" onclick="toggleTheme()">
+        <span id="theme-icon">🌙</span> <span id="theme-label">Light mode</span>
+      </button>
+      <button class="btn-logout" onclick="doLogout()">Sign Out</button>
+    </div>
+  </nav>
+
+  <!-- ═══ MAIN ═══ -->
+  <main class="main" id="main">
+
+    <!-- Mobile topbar -->
+    <div class="mobile-topbar" id="mobile-topbar">
+      <button class="sidebar-toggle" onclick="toggleSidebar()" title="Open menu">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="mobile-topbar-title">✝ Discipleship</div>
+      <div style="width:36px;"></div>
+    </div>
+
+    <div class="page active">
+      <div class="page-title">My Profile</div>
+      <div class="page-sub">Manage your display name and password</div>
+
+      <div class="profile-grid">
+
+        <!-- ── Avatar / identity card (full width) ── -->
+        <div class="table-card full-width">
+          <div class="table-toolbar">
+            <h3>Account</h3>
+          </div>
+          <div class="profile-header-inner">
+            <div class="avatar-lg" id="profile-avatar">?</div>
+            <div class="profile-header-info">
+              <div class="disp-name" id="profile-name">Loading…</div>
+              <span class="role-badge" id="profile-role-badge">Administrator</span>
+            </div>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Email</span>
+            <span class="info-value" id="info-email">—</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Role</span>
+            <span class="info-value" id="info-role">Administrator</span>
+          </div>
+        </div>
+
+        <!-- ── Edit display name ── -->
+        <div class="table-card">
+          <div class="table-toolbar">
+            <h3>Display Name</h3>
+          </div>
+          <div class="pf-body">
+            <div class="pf-field">
+              <label>Full name</label>
+              <input type="text" id="name-input" placeholder="Your full name" autocomplete="name" />
+            </div>
+            <button class="btn-save" id="name-save-btn" onclick="saveName()">Save name</button>
+            <div class="status-msg" id="name-status">&nbsp;</div>
+          </div>
+        </div>
+
+        <!-- ── Change password ── -->
+        <div class="table-card">
+          <div class="table-toolbar">
+            <h3>Change Password</h3>
+          </div>
+          <div class="pf-body">
+            <div class="pf-field">
+              <label>New password</label>
+              <input type="password" id="pw-new" placeholder="Minimum 8 characters"
+                     oninput="checkPwStrength(this.value)" autocomplete="new-password" />
+              <div class="pw-strength">
+                <div class="pw-strength-bar"><div class="pw-strength-fill" id="pw-bar"></div></div>
+                <span class="pw-strength-label" id="pw-label"></span>
+              </div>
+            </div>
+            <div class="pf-field">
+              <label>Confirm new password</label>
+              <input type="password" id="pw-confirm" placeholder="Repeat new password" autocomplete="new-password" />
+            </div>
+            <button class="btn-save" id="pw-save-btn" onclick="savePassword()">Update password</button>
+            <div class="status-msg" id="pw-status">&nbsp;</div>
+          </div>
+        </div>
+
+      </div><!-- /.profile-grid -->
+    </div><!-- /.page -->
+
+  </main>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/api.js"></script>
+<script src="js/theme.js"></script>
+<script src="js/profile.js"></script>
+
+<script>
+// ── Sidebar toggle (mirrors admin.js) ────────────────────────
+const sidebar  = document.getElementById('sidebar');
+const mainEl   = document.getElementById('main');
+const backdrop = document.getElementById('sidebar-backdrop');
+const SIDEBAR_KEY = 'awm_sidebar_collapsed';
+
+function isMobile()  { return window.innerWidth < 768; }
+function isTablet()  { return window.innerWidth >= 768 && window.innerWidth < 1200; }
+
+function toggleSidebar() {
+  if (isMobile() || isTablet()) {
+    const isOpen = sidebar.classList.toggle('open');
+    backdrop.classList.toggle('visible', isOpen);
+  } else {
+    const collapsed = sidebar.classList.toggle('collapsed');
+    mainEl.classList.toggle('sidebar-collapsed', collapsed);
+    localStorage.setItem(SIDEBAR_KEY, collapsed ? '1' : '0');
+  }
+}
+function closeSidebar() {
+  sidebar.classList.remove('open');
+  backdrop.classList.remove('visible');
+}
+
+// Restore desktop collapsed state
+(function() {
+  if (!isMobile() && !isTablet() && localStorage.getItem(SIDEBAR_KEY) === '1') {
+    sidebar.classList.add('collapsed');
+    mainEl.classList.add('sidebar-collapsed');
+  }
+})();
+
+window.addEventListener('resize', () => {
+  if (!isMobile() && !isTablet()) closeSidebar();
+});
+
+function navTo(page) {
+  localStorage.setItem('awm_nav_page', page);
+}
+</script>
+
+</body>
+</html>
