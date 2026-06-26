@@ -1593,7 +1593,7 @@ function setMemberView(view) {
 
 function setGraduatedLevel(lvl) {
   graduatedLevelFilter = lvl;
-  document.querySelectorAll('.grad-level-tab').forEach(t => {
+  document.querySelectorAll('#graduated-level-tabs .mlevel-tab').forEach(t => {
     t.classList.toggle('active', t.dataset.level === lvl);
   });
   renderGraduated();
