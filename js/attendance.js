@@ -110,8 +110,12 @@ function renderChip() {
 }
 
 function renderSubmit() {
-  const alreadyIn = todayCheckedInIds.has(selectedMember.id);
-  const inactive  = selectedMember.isActive === false;
+  const alreadyIn    = todayCheckedInIds.has(selectedMember.id);
+  const inactive     = selectedMember.isActive === false;
+  const sessionLevel = currentSession && currentSession.level_id;
+  const wrongLevel   = sessionLevel && selectedMember.level && selectedMember.level !== sessionLevel;
+  const blocked      = alreadyIn || inactive || wrongLevel;
+
   // Populate stats block once data is ready
   if (selectedMember.totalSessions !== undefined) {
     setTimeout(() => {
@@ -119,6 +123,18 @@ function renderSubmit() {
       if (el) renderMemberStatsBlock(el, selectedMember.attended, selectedMember.totalSessions);
     }, 0);
   }
+
+  let blockMessage = '';
+  if (wrongLevel) {
+    const sessionLevelName = LEVEL_NAMES[sessionLevel] || ('Level ' + sessionLevel);
+    const memberLevelName  = LEVEL_NAMES[selectedMember.level] || ('Level ' + selectedMember.level);
+    blockMessage = `<p class="hint" style="color:var(--rust);margin-top:8px;">
+      This session is for <strong>${esc(sessionLevelName)}</strong>. You are enrolled in <strong>${esc(memberLevelName)}</strong>. Please use the correct coordinator's QR code.
+    </p>`;
+  } else if (inactive) {
+    blockMessage = `<p class="hint" style="color:var(--rust);margin-top:8px;">This member is inactive and cannot check in.</p>`;
+  }
+
   return `
     <label class="field-label" style="margin-top:4px;">Family</label>
     <input type="text" value="${esc(selectedMember.family || '—')}" disabled style="opacity:1;cursor:default;" />
@@ -126,10 +142,10 @@ function renderSubmit() {
     <input type="text" value="${esc(LEVEL_NAMES[selectedMember.level] || (selectedMember.level ? 'Level ' + selectedMember.level : '—'))}" disabled style="opacity:1;cursor:default;" />
     <label class="field-label" for="phone-input" style="margin-top:14px;">Phone Number</label>
     <input type="tel" id="phone-input" inputmode="tel"
-           value="${esc(selectedMember.phone || '')}" ${alreadyIn || inactive ? 'disabled' : ''} />
-    ${inactive ? `<p class="hint" style="color:var(--rust);margin-top:8px;">This member is inactive and cannot check in.</p>` : ''}
-    <button class="btn btn-primary" id="submit-btn" style="margin-top:16px;" ${alreadyIn || inactive ? 'disabled' : ''}>
-      ${inactive ? 'Member inactive' : alreadyIn ? 'Already recorded today' : 'Submit attendance'}
+           value="${esc(selectedMember.phone || '')}" ${blocked ? 'disabled' : ''} />
+    ${blockMessage}
+    <button class="btn btn-primary" id="submit-btn" style="margin-top:16px;" ${blocked ? 'disabled' : ''}>
+      ${wrongLevel ? 'Wrong level' : inactive ? 'Member inactive' : alreadyIn ? 'Already recorded today' : 'Submit attendance'}
     </button>
     <p class="hint" id="submit-hint">&nbsp;</p>
     <div id="member-stats-block"></div>`;
@@ -362,6 +378,16 @@ async function handleSubmit() {
   if (!phone || phone.length < 6) {
     hint.textContent  = 'Please enter a valid phone number.';
     hint.style.color  = 'var(--rust)';
+    return;
+  }
+
+  // Level mismatch guard
+  if (currentSession && currentSession.level_id && selectedMember.level &&
+      selectedMember.level !== currentSession.level_id) {
+    const sessionLevelName = LEVEL_NAMES[currentSession.level_id] || ('Level ' + currentSession.level_id);
+    const memberLevelName  = LEVEL_NAMES[selectedMember.level]    || ('Level ' + selectedMember.level);
+    hint.textContent = `This session is for ${sessionLevelName}. You are enrolled in ${memberLevelName}.`;
+    hint.style.color = 'var(--rust)';
     return;
   }
 
